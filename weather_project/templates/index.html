@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WeatherSense AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+    <div class="bg-overlay"></div>
+    <div class="ambient">
+        <span class="orb orb-1"></span>
+        <span class="orb orb-2"></span>
+        <span class="orb orb-3"></span>
+        <span class="grid-lines"></span>
+    </div>
+
+    <nav class="navbar glass-card fade-in-up delay-1">
+        <div class="brand">
+            <span class="brand-icon">🌩️</span>
+            <span class="brand-text">WeatherSense AI</span>
+        </div>
+        <form class="city-form" method="get" action="/">
+            <input
+                type="text"
+                name="city"
+                value="{{ search_city }}"
+                placeholder="Enter city name"
+                aria-label="City name"
+                class="city-input"
+                list="city-suggestions"
+                autocomplete="off"
+                required
+            />
+            <datalist id="city-suggestions"></datalist>
+            <button type="submit" class="city-button">Get Weather</button>
+        </form>
+        <div class="date-pill">{{ current_date }}</div>
+    </nav>
+
+    <main class="container">
+        <section class="summary-strip glass-card fade-in-up delay-1">
+            <div class="summary-item">
+                <span class="summary-label">Now</span>
+                <span class="summary-value">{{ temp }}°C</span>
+            </div>
+            <div class="summary-divider"></div>
+            <div class="summary-item">
+                <span class="summary-label">Condition</span>
+                <span class="summary-value">{{ condition_emoji }} {{ predicted_condition }}</span>
+            </div>
+            <div class="summary-divider"></div>
+            <div class="summary-item">
+                <span class="summary-label">Confidence</span>
+                <span class="summary-value">{{ confidence }}%</span>
+            </div>
+        </section>
+        <section class="hero glass-card fade-in-up delay-2">
+            <div class="hero-left">
+                <div class="hero-badge">Live AI Forecast</div>
+                <h1 class="city-title">{{ city_name }}, {{ country }}</h1>
+                <p class="description">{{ description }}</p>
+                <p class="hero-summary">AI says {{ condition_emoji }} {{ predicted_condition }}</p>
+                <p class="feels-like">Feels like {{ feels_like }}°C</p>
+                <div class="hero-meta">
+                    <div>
+                        <span class="meta-label">Humidity</span>
+                        <span class="meta-value">{{ humidity }}%</span>
+                    </div>
+                    <div>
+                        <span class="meta-label">Wind</span>
+                        <span class="meta-value">{{ wind_speed }} m/s</span>
+                    </div>
+                    <div>
+                        <span class="meta-label">Visibility</span>
+                        <span class="meta-value">{{ visibility }} km</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-right">
+                <div class="temp-block">
+                    {% if icon_url %}
+                    <img src="{{ icon_url }}" alt="Weather Icon" class="weather-icon" />
+                    {% endif %}
+                    <div class="temp">{{ temp }}°C</div>
+                </div>
+                <div class="condition-chip">
+                    <span>{{ condition_emoji }}</span>
+                    <span>{{ predicted_condition }}</span>
+                </div>
+            </div>
+        </section>
+
+        {% if error %}
+        <section class="error-card glass-card fade-in-up delay-3">
+            <div class="error-content">
+                <div class="error-icon">⚠️</div>
+                <p>{{ error }}</p>
+            </div>
+        </section>
+        {% endif %}
+
+        <section class="stats-grid">
+            <article class="stat-card glass-card fade-in-up delay-1">
+                <div class="stat-icon">🌡️</div>
+                <div class="stat-label">Temperature</div>
+                <div class="stat-value">{{ temp }}°C</div>
+            </article>
+            <article class="stat-card glass-card fade-in-up delay-2">
+                <div class="stat-icon">💧</div>
+                <div class="stat-label">Humidity</div>
+                <div class="stat-value">{{ humidity }}%</div>
+            </article>
+            <article class="stat-card glass-card fade-in-up delay-3">
+                <div class="stat-icon">🔵</div>
+                <div class="stat-label">Pressure</div>
+                <div class="stat-value">{{ pressure }} hPa</div>
+            </article>
+            <article class="stat-card glass-card fade-in-up delay-4">
+                <div class="stat-icon">💨</div>
+                <div class="stat-label">Wind Speed</div>
+                <div class="stat-value">{{ wind_speed }} m/s</div>
+            </article>
+            <article class="stat-card glass-card fade-in-up delay-5">
+                <div class="stat-icon">☁️</div>
+                <div class="stat-label">Cloud Cover</div>
+                <div class="stat-value">{{ cloud_cover }}%</div>
+            </article>
+            <article class="stat-card glass-card fade-in-up delay-6">
+                <div class="stat-icon">👁️</div>
+                <div class="stat-label">Visibility</div>
+                <div class="stat-value">{{ visibility }} km</div>
+            </article>
+        </section>
+
+        <section
+            class="prediction-banner glass-card fade-in-up delay-4"
+            style="border-left-color: {{ condition_color }}; box-shadow: 0 0 40px {{ condition_color }}40;"
+        >
+            <div class="prediction-header">
+                <h2>AI Weather Prediction</h2>
+                <span class="prediction-pill">Model Confidence</span>
+            </div>
+            <p class="prediction-result">{{ condition_emoji }} {{ predicted_condition }}</p>
+            <div class="confidence-track">
+                <div class="confidence-fill" style="width: {{ confidence }}%;"></div>
+            </div>
+            <p class="confidence-value">{{ confidence }}%</p>
+        </section>
+    </main>
+
+    <footer class="footer fade-in-up delay-6">
+        <p>Powered by OpenWeatherMap API + Random Forest ML</p>
+        <p>© 2026 WeatherSense AI</p>
+    </footer>
+
+    <script>
+        const cityInput = document.querySelector('.city-input');
+        const suggestionsList = document.getElementById('city-suggestions');
+        let suggestTimer;
+
+        const updateSuggestions = async (query) => {
+            if (!query) {
+                suggestionsList.innerHTML = '';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/city-suggest?q=${encodeURIComponent(query)}`);
+                if (!response.ok) {
+                    return;
+                }
+                const suggestions = await response.json();
+                suggestionsList.innerHTML = suggestions
+                    .map((item) => `<option value="${item.value}" label="${item.label}"></option>`)
+                    .join('');
+            } catch (error) {
+                suggestionsList.innerHTML = '';
+            }
+        };
+
+        cityInput.addEventListener('input', (event) => {
+            const value = event.target.value.trim();
+            clearTimeout(suggestTimer);
+            suggestTimer = setTimeout(() => updateSuggestions(value), 300);
+        });
+    </script>
+</body>
+</html>
